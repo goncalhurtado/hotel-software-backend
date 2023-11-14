@@ -8,7 +8,6 @@ const getAllBookings = async(req, res) => {
                 status: 404,
             });
         }
-
         res.status(200).send({
             message: "All bookings",
             status: 200,
