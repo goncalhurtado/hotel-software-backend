@@ -66,8 +66,6 @@ const createBooking = async(req, res) => {
             check_out,
         });
 
-        console.log(newBooking);
-
         const savedBooking = await newBooking.save();
 
         res.status(200).send({
