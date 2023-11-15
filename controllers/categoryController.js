@@ -71,16 +71,6 @@ const updateCategory = async(req, res) => {
     const cloudinaryImg = await cloudinary.uploader.upload(path);
 
     try {
-        // const existingCategoryWithSameName = await Category.findOne({
-        //     name: name,
-        // });
-
-        // if (existingCategoryWithSameName) {
-        //     return res.status(400).json({
-        //         message: "Category with same name already exists",
-        //         status: 400
-        //     });
-        // }
 
         const categoryById = Category.findById(id);
 
@@ -115,7 +105,30 @@ const updateCategory = async(req, res) => {
             error
         });
     }
+}
 
+
+const getCategoryById = async(req, res) => {
+    const { id } = req.params;
+    try {
+        const category = await Category.findById(id);
+        if (!category) {
+            return res.status(400).json({
+                message: "Category not found",
+                status: 400
+            });
+        }
+        res.status(200).json({
+            message: "Category retrieved successfully",
+            status: 200,
+            category
+        });
+    } catch (error) {
+        return res.status(400).json({
+            message: "Error retrieving category",
+            error
+        });
+    }
 }
 
 
@@ -123,5 +136,6 @@ const updateCategory = async(req, res) => {
 module.exports = {
     createCategory,
     getAllCategories,
-    updateCategory
+    updateCategory,
+    getCategoryById
 }
