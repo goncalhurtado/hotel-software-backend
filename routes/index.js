@@ -1,6 +1,7 @@
 const { getAllBookings, createBooking } = require('../controllers/bookingControllers');
 const { createCategory, getAllCategories, updateCategory, getCategoryById } = require('../controllers/categoryController');
-const upload = require('../middlewares/multer');
+const { createRoom, getAllRooms } = require('../controllers/roomControllers');
+upload = require('../middlewares/multer');
 
 const router = require('express').Router();
 
@@ -13,5 +14,9 @@ router.post("/category", upload.single('image'), createCategory);
 router.get("/category", getAllCategories);
 router.get("/category/:id", getCategoryById);
 router.put("/category/:id", upload.single('image'), updateCategory);
+
+//rooms
+router.post("/room", createRoom);
+router.get("/rooms", getAllRooms);
 
 module.exports = router;

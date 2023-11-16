@@ -8,16 +8,16 @@ const createCategory = async(req, res) => {
     const cloudinaryImg = await cloudinary.uploader.upload(path);
     try {
 
-        if (!path) {
-            return res.status(400).json({
-                message: "Please upload an image",
-                status: 400
+        if (categories) {
+            return res.status(404).json({
+                message: `Category ${name} already exists`,
+                status: 404
             });
         }
 
-        if (categories) {
+        if (!path) {
             return res.status(400).json({
-                message: `Category ${name} already exists`,
+                message: "Please upload an image",
                 status: 400
             });
         }
@@ -30,7 +30,7 @@ const createCategory = async(req, res) => {
             image: cloudinaryImg.secure_url
         });
         await newCategory.save();
-        res.status(201).json({
+        return res.status(201).json({
             message: "Category created successfully",
             status: 201,
             newCategory
@@ -50,7 +50,7 @@ const getAllCategories = async(req, res) => {
             });
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             message: "Categories retrieved successfully",
             status: 200,
             categories
