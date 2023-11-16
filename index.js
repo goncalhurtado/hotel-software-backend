@@ -4,6 +4,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const router = require('./routes');
 const dbConnection = require('./database/db');
+const cloudinary = require('cloudinary').v2;
 
 
 const app = express();
@@ -14,6 +15,14 @@ app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(morgan('dev'));
+
+// cloudinary config
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
 
 // configuracion rutas
 app.use(process.env.API, router)
