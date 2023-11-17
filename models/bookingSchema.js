@@ -71,12 +71,12 @@ const bookingSchema = new mongoose.Schema({
         ref: Room,
     },
     check_in: {
-        type: String,
+        type: mongoose.Schema.Types.Mixed,
         required: true,
         trim: true
     },
     check_out: {
-        type: String,
+        type: mongoose.Schema.Types.Mixed,
         required: true,
         trim: true
     },

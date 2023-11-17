@@ -164,6 +164,9 @@ const updateBooking = async(req, res) => {
             status: 400,
         });
 
+        const checkInDate = new Date(check_in);
+        const checkOutDate = new Date(check_out);
+
         const updateBookingData = await Booking.findByIdAndUpdate(id, {
             info: {
                 firstName,
@@ -180,8 +183,8 @@ const updateBooking = async(req, res) => {
                 price,
             },
             room,
-            check_in,
-            check_out,
+            check_in: checkInDate,
+            check_out: checkOutDate,
         }, { new: true });
 
         if (!updateBookingData || updateBookingData === null) return res.status(400).send({
@@ -227,33 +230,6 @@ const deleteBooking = async(req, res) => {
         });
     }
 }
-
-const searchAvailableRooms = async(req, res) => {
-    const { check_in, check_out, capacity } = req.body;
-    const checkInDate = new Date(check_in);
-    const checkOutDate = new Date(check_out);
-
-
-    try {
-        const availableRooms = await Room.find({ capacity: { $gte: capacity } }).populate('category');
-        const bookings = await Booking.find({ check_in: { $gte: checkInDate }, check_out: { $lte: checkOutDate } }).populate('room');
-        const bookedRooms = bookings.map(booking => booking.room);
-        const filteredRooms = availableRooms.filter(room => !bookedRooms.includes(room._id));
-        return res.status(200).json({
-            message: "Available rooms retrieved successfully",
-            status: 200,
-            filteredRooms
-        });
-    } catch (error) {
-        res.status(400).json({
-            message: "Error retrieving available rooms",
-            error
-        });
-
-    }
-
-}
-
 
 
 module.exports = { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingById }
