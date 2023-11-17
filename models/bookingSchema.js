@@ -52,20 +52,18 @@ const bookingSchema = new mongoose.Schema({
             required: true,
             trim: true,
             default: "Transferencia Bancaria"
-                // enum: ["transferencia bancaria", "tarjeta de credito", "efectivo"]
         },
         paymentStatus: {
             type: String,
             required: true,
             trim: true,
             enum: ["success", "pending", "cancelled"],
-            default: "pending"
         },
         price: {
-            type: String,
+            type: Number,
             required: true,
             trim: true
-        },
+        }
 
     },
     room: {
@@ -73,12 +71,12 @@ const bookingSchema = new mongoose.Schema({
         ref: Room,
     },
     check_in: {
-        type: Date,
+        type: String,
         required: true,
         trim: true
     },
     check_out: {
-        type: Date,
+        type: String,
         required: true,
         trim: true
     },

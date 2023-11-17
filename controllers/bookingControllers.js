@@ -24,7 +24,6 @@ const getAllBookings = async(req, res) => {
     }
 }
 
-
 const createBooking = async(req, res) => {
     try {
         const {
@@ -92,7 +91,8 @@ const getBookingById = async(req, res) => {
                 status: 400
             });
         }
-        const booking = await Booking.findById(id);
+        const booking = await Booking.findById(id).populate('room');
+
         if (!booking) {
             return res.status(400).json({
                 message: "Booking not found",
@@ -113,7 +113,6 @@ const getBookingById = async(req, res) => {
 
     }
 }
-
 
 const updateBooking = async(req, res) => {
     try {
@@ -138,7 +137,12 @@ const updateBooking = async(req, res) => {
             },
         } = req.body;
 
-        const updatedBooking = await Booking.findByIdAndUpdate(id, {
+        if (!mongoose.isValidObjectId(id)) return res.status(400).send({
+            message: "Invalid id",
+            status: 400,
+        });
+
+        const updateBookingData = await Booking.findByIdAndUpdate(id, {
             info: {
                 firstName,
                 lastName,
@@ -158,10 +162,15 @@ const updateBooking = async(req, res) => {
             check_out,
         }, { new: true });
 
-        res.status(200).send({
+        if (!updateBookingData || updateBookingData === null) return res.status(400).send({
+            message: "Booking not found",
+            status: 400,
+        });
+
+        return res.status(200).send({
             message: "Booking updated",
             status: 200,
-            updatedBooking,
+            updateBookingData,
         });
     } catch (error) {
         res.status(500).send({
