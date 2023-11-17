@@ -1,5 +1,6 @@
 const Room = require('../models/roomSchema');
 const Category = require('../models/categorySchema');
+const mongoose = require('mongoose');
 
 const createRoom = async(req, res) => {
     const { number, category } = req.body;
@@ -55,9 +56,42 @@ const getAllRooms = async(req, res) => {
     }
 }
 
+const getRoomById = async(req, res) => {
+    const { id } = req.params;
+    try {
+
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({
+                message: "Invalid id",
+                status: 400
+            });
+        }
+
+
+        const room = await Room.findById(id).populate('category');
+        if (!room) {
+            return res.status(400).json({
+                message: "Room not found",
+                status: 400
+            });
+        }
+
+        return res.status(200).json({
+            message: "Room retrieved successfully",
+            status: 200,
+            room
+        });
+    } catch (error) {
+        res.status(400).json({
+            message: "Error retrieving room",
+            error
+        });
+    }
+}
+
 
 module.exports = {
     createRoom,
-    getAllRooms
-
+    getAllRooms,
+    getRoomById
 }

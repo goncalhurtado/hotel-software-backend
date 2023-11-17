@@ -3,7 +3,7 @@ const Category = require('./categorySchema');
 
 const roomSchema = new mongoose.Schema({
     number: {
-        type: String,
+        type: Number,
         required: true
     },
     category: {
