@@ -1,14 +1,15 @@
 const Category = require('../models/categorySchema');
 const cloudinary = require('cloudinary').v2;
+const mongoose = require('mongoose');
 
 const createCategory = async(req, res) => {
     const { name, description, price, capacity } = req.body;
     const { path } = req.file;
-    const categories = await Category.find({ name });
+    const existingCategory = await Category.findOne({ name });
     const cloudinaryImg = await cloudinary.uploader.upload(path);
     try {
 
-        if (categories) {
+        if (existingCategory) {
             return res.status(404).json({
                 message: `Category ${name} already exists`,
                 status: 404
@@ -72,8 +73,14 @@ const updateCategory = async(req, res) => {
 
     try {
 
-        const categoryById = Category.findById(id);
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({
+                message: "Invalid id",
+                status: 400
+            });
+        }
 
+        const categoryById = Category.findById(id);
         if (!categoryById) {
             return res.status(400).json({
                 message: "Category not found",
@@ -111,6 +118,14 @@ const updateCategory = async(req, res) => {
 const getCategoryById = async(req, res) => {
     const { id } = req.params;
     try {
+
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({
+                message: "Invalid id",
+                status: 400
+            });
+        }
+
         const category = await Category.findById(id);
         if (!category) {
             return res.status(400).json({

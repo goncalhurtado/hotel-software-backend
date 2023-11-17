@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Room = require("./roomSchema");
 
 const bookingSchema = new mongoose.Schema({
     info: {
@@ -49,32 +50,33 @@ const bookingSchema = new mongoose.Schema({
         paymentMethod: {
             type: String,
             required: true,
-            trim: true
+            trim: true,
+            default: "Transferencia Bancaria"
         },
         paymentStatus: {
             type: String,
             required: true,
-            trim: true
+            trim: true,
+            enum: ["success", "pending", "cancelled"],
         },
         price: {
-            type: String,
+            type: Number,
             required: true,
             trim: true
-        },
+        }
 
     },
-    room_id: {
-        type: Number,
-        required: true,
-        trim: true
+    room: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: Room,
     },
     check_in: {
-        type: Date,
+        type: String,
         required: true,
         trim: true
     },
     check_out: {
-        type: Date,
+        type: String,
         required: true,
         trim: true
     },
