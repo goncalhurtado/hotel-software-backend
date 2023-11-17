@@ -1,8 +1,11 @@
 const Booking = require("../models/bookingSchema");
 const mongoose = require("mongoose");
+const { format } = require("date-fns");
 
 const getAllBookings = async(req, res) => {
     const bookings = await Booking.find().populate('room');
+
+
     try {
 
         if (!bookings || bookings.length === 0) return res.status(400).send({
@@ -10,13 +13,26 @@ const getAllBookings = async(req, res) => {
             status: 400,
         });
 
+        const formattedBookings = bookings.map(booking => {
+            const formattedCheckIn = format(new Date(booking.check_in), "MM/dd/yyyy");
+            const formattedCheckOut = format(new Date(booking.check_out), "MM/dd/yyyy");
+
+            return {
+                ...booking.toObject(),
+                check_in: formattedCheckIn,
+                check_out: formattedCheckOut,
+            };
+        });
+
         return res.status(200).send({
             message: "Bookings retrieved successfully",
             status: 200,
-            bookings,
+            formattedBookings
         });
     } catch (error) {
+        console.log(error)
         res.status(400).send({
+
             message: "Error retrieving bookings",
             status: 400,
             error,
@@ -46,6 +62,9 @@ const createBooking = async(req, res) => {
             },
         } = req.body;
 
+        const checkInDate = new Date(check_in);
+        const checkOutDate = new Date(check_out);
+
         const newBooking = new Booking({
             info: {
                 firstName,
@@ -62,8 +81,8 @@ const createBooking = async(req, res) => {
                 price,
             },
             room,
-            check_in,
-            check_out,
+            check_in: checkInDate,
+            check_out: checkOutDate,
         });
 
         const savedBooking = await newBooking.save();
@@ -91,7 +110,10 @@ const getBookingById = async(req, res) => {
                 status: 400
             });
         }
-        const booking = await Booking.findById(id).populate('room');
+        let booking = await Booking.findById(id).populate('room');
+
+        booking.check_in = format(new Date(booking.check_in), "MM/dd/yyyy");
+        booking.check_out = format(new Date(booking.check_out), "MM/dd/yyyy");
 
         if (!booking) {
             return res.status(400).json({
@@ -204,6 +226,32 @@ const deleteBooking = async(req, res) => {
             error,
         });
     }
+}
+
+const searchAvailableRooms = async(req, res) => {
+    const { check_in, check_out, capacity } = req.body;
+    const checkInDate = new Date(check_in);
+    const checkOutDate = new Date(check_out);
+
+
+    try {
+        const availableRooms = await Room.find({ capacity: { $gte: capacity } }).populate('category');
+        const bookings = await Booking.find({ check_in: { $gte: checkInDate }, check_out: { $lte: checkOutDate } }).populate('room');
+        const bookedRooms = bookings.map(booking => booking.room);
+        const filteredRooms = availableRooms.filter(room => !bookedRooms.includes(room._id));
+        return res.status(200).json({
+            message: "Available rooms retrieved successfully",
+            status: 200,
+            filteredRooms
+        });
+    } catch (error) {
+        res.status(400).json({
+            message: "Error retrieving available rooms",
+            error
+        });
+
+    }
+
 }
 
 
