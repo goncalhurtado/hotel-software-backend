@@ -1,10 +1,18 @@
-const { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingById } = require('../controllers/bookingControllers');
+const { getAllAdmins, registerAdmin, deleteAdmin, getAdminById, loginAdmin } = require('../controllers/adminController');
+const { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingById } = require('../controllers/bookingController');
 const { createCategory, getAllCategories, updateCategory, getCategoryById } = require('../controllers/categoryController');
-const { createRoom, getAllRooms, getRoomById } = require('../controllers/roomControllers');
+const { createRoom, getAllRooms, getRoomById } = require('../controllers/roomController');
 const { searchAvailable } = require('../controllers/searchController');
 upload = require('../middlewares/multer');
 
 const router = require('express').Router();
+
+//admin
+router.get("/admins", getAllAdmins);
+router.post("/register", registerAdmin);
+router.delete("/admin/:id", deleteAdmin);
+router.get("/admin/:id", getAdminById);
+router.post("/login", loginAdmin);
 
 //bookings
 router.get("/bookings", getAllBookings);
@@ -15,7 +23,6 @@ router.get("/booking/:id", getBookingById);
 
 //search
 router.get("/search", searchAvailable);
-
 
 //categories
 router.post("/category", upload.single('image'), createCategory);
