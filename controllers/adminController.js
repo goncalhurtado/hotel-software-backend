@@ -1,4 +1,4 @@
-Admin = require("../models/adminSchema");
+const Admin = require("../models/adminSchema");
 const mongoose = require("mongoose");
 const { encryptPassword, comparePassword } = require("../utils/passwordHandler");
 const jwt = require("jsonwebtoken");
@@ -29,8 +29,15 @@ const getAllAdmins = async(req, res) => {
 }
 
 const registerAdmin = async(req, res) => {
+    const { name, email, password } = req.body;
+    const adminExist = await Admin.findOne({ email });
+
     try {
-        const { name, email, password } = req.body;
+
+        if (adminExist) return res.status(400).send({
+            message: "Admin already exists",
+            status: 400,
+        });
 
         const admin = await Admin.create({
             name,
@@ -81,6 +88,11 @@ const loginAdmin = async(req, res) => {
             token,
         });
     } catch (error) {
+        res.status(400).send({
+            message: "Error logging",
+            status: 400,
+            error,
+        });
 
     }
 
