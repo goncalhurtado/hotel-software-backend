@@ -6,33 +6,61 @@ const Room = require("../models/roomSchema");
 const searchAvailable = async(req, res) => {
     const { check_in, check_out, capacity } = req.query;
     const capacityInt = Number(capacity);
+
     const checkInDate = new Date(check_in);
     const checkOutDate = new Date(check_out);
-    const forConsole = req.query;
+
+
+    if (checkInDate > checkOutDate) return res.status(400).json({
+        message: "Check in date must be before check out date",
+        status: 400,
+    });
+
 
     try {
         const rooms = await Room.find().populate('category');
-        const availableRooms = rooms.filter(room => room.category.capacity === capacityInt);
+
+        const roomsFiltredPerCapacity = rooms.filter(room => room.category.capacity === capacityInt);
 
 
+        if (!roomsFiltredPerCapacity || roomsFiltredPerCapacity.length === 0)
+            return res.status(400).json({
+                message: "No rooms available with this capacity",
+                status: 400,
+            });
 
+        const bookingsOnUserDate = await Booking.find({
+            $and: [{
+                    check_in: {
+                        $lt: checkOutDate
+                    }
+                },
+                {
+                    check_out: {
+                        $gt: checkInDate
+                    }
+                }
+            ]
 
-        const bookings = await Booking.find({ check_in: { $gte: checkInDate }, check_out: { $lte: checkOutDate } }).populate('room');
+        }).populate('room')
 
+        const bookedRoomIds = bookingsOnUserDate.map(booking => booking.room.id.toString());
+        const availablesRooms = roomsFiltredPerCapacity.filter(room => !bookedRoomIds.includes(room._id.toString()));
 
+        if (availablesRooms.length === 0)
+            return res.status(400).json({
+                message: "No rooms available",
+                status: 400,
+            });
 
+        // roomsFiltredPerCapacity
 
-        const bookedRooms = bookings.map(booking => booking.room);
-        const filteredRooms = availableRooms.filter(room => !bookedRooms.includes(room.id));
         return res.status(200).json({
-            message: "Available rooms retrieved successfully",
+            message: `${availablesRooms.length} available rooms retrieved successfully`,
             status: 200,
-
-            bookings
-
+            roomsFiltredPerCapacity
         });
     } catch (error) {
-        console.log(error)
         res.status(400).json({
             message: "Error retrieving available rooms",
             error
