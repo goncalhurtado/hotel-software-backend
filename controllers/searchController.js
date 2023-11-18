@@ -53,14 +53,42 @@ const searchAvailable = async(req, res) => {
                 status: 400,
             });
 
-        // roomsFiltredPerCapacity
+        // CATEGORY RESPONSE
+
+        let allCategories = {};
+        roomsFiltredPerCapacity.forEach(room => {
+            let category = room.category;
+            if (!allCategories[category._id]) {
+                allCategories[category._id] = category;
+            }
+        });
+
+        let availableCategories = {};
+        let unavailableCategories = {};
+
+        Object.values(allCategories).forEach(category => {
+            if (availablesRooms.some(room => room.category._id === category._id)) {
+                availableCategories[category._id] = category;
+            } else {
+                unavailableCategories[category._id] = category;
+            }
+        });
+
+        let availables = Object.values(availableCategories);
+        let soldout = Object.values(unavailableCategories);
+
 
         return res.status(200).json({
             message: `${availablesRooms.length} available rooms retrieved successfully`,
             status: 200,
-            roomsFiltredPerCapacity
+            availablesRooms,
+            categories: {
+                availables,
+                soldout
+            }
         });
     } catch (error) {
+        console.log(error);
         res.status(400).json({
             message: "Error retrieving available rooms",
             error
