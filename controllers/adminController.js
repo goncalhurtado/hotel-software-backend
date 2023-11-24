@@ -66,14 +66,15 @@ const loginAdmin = async(req, res) => {
     const secret = process.env.JWT_SECRET;
 
     try {
-        if (!user) return res.status(400).send({
-            message: "User not found",
-            status: 400,
-        });
+        if (!user)
+            return res.status(404).send({
+                message: "User not found",
+                status: 404,
+            });
         if (!comparePassword(password, user.password))
-            return res.status(400).send({
+            return res.status(404).send({
                 message: "Invalid password",
-                status: 400,
+                status: 404,
             })
 
         const payload = {

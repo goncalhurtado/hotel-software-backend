@@ -68,7 +68,9 @@ const updateCategory = async(req, res) => {
 
     const { id } = req.params;
     const { name, description, price, capacity } = req.body;
+
     const { path } = req.file;
+
     const cloudinaryImg = await cloudinary.uploader.upload(path);
 
     try {
@@ -146,11 +148,42 @@ const getCategoryById = async(req, res) => {
     }
 }
 
+const deleteCategory = async(req, res) => {
+    const { id } = req.params;
+    try {
+
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({
+                message: "Invalid id",
+                status: 400
+            });
+        }
+
+        const category = await Category.findByIdAndDelete(id);
+        if (!category) {
+            return res.status(400).json({
+                message: "Category not found",
+                status: 400
+            });
+        }
+        res.status(200).json({
+            message: "Category deleted successfully",
+            status: 200,
+            category
+        });
+    } catch (error) {
+        return res.status(400).json({
+            message: "Error deleting category",
+            error
+        });
+    }
+}
 
 
 module.exports = {
     createCategory,
     getAllCategories,
     updateCategory,
-    getCategoryById
+    getCategoryById,
+    deleteCategory
 }
