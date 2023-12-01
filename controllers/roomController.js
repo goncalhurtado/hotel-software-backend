@@ -90,9 +90,9 @@ const getRoomById = async(req, res) => {
 }
 
 const updateRoom = async(req, res) => {
+
     const { id } = req.params;
     const { number, category } = req.body;
-    const categoryById = await Category.findById(category);
 
     try {
         if (!mongoose.isValidObjectId(id)) {
@@ -102,10 +102,9 @@ const updateRoom = async(req, res) => {
             });
         }
 
-
         const existingRoom = await Room.findOne({ number });
+        if (existingRoom && String(existingRoom._id) !== id) {
 
-        if (existingRoom) {
             return res.status(400).json({
                 message: `Room ${number} already exists`,
                 status: 400,
@@ -113,10 +112,13 @@ const updateRoom = async(req, res) => {
             });
         }
 
+        const categoryById = await Category.findById(category);
+
         if (!categoryById) {
             return res.status(400).json({
                 message: `Category ${category} does not exist`,
-                status: 400
+                status: 400,
+
             });
         }
 

@@ -33,9 +33,9 @@ router.put("/category/:id", upload.single('image'), updateCategory);
 
 //rooms
 router.post("/room", createRoom);
+router.put("/room/:id", updateRoom);
 router.get("/room/:id", getRoomById);
 router.get("/rooms", getAllRooms);
-router.put("/room/:id", updateRoom);
 
 
 
