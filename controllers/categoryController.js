@@ -4,7 +4,16 @@ const mongoose = require('mongoose');
 
 const createCategory = async(req, res) => {
     const { name, description, price, capacity } = req.body;
-    const { path } = req.file;
+
+    const { path } = req.file ? req.file : {};
+
+    if (!path) {
+        return res.status(400).json({
+            message: 'You must upload an image',
+            status: 400
+        });
+    }
+
     const existingCategory = await Category.findOne({ name });
     const cloudinaryImg = await cloudinary.uploader.upload(path);
     try {
@@ -32,7 +41,7 @@ const createCategory = async(req, res) => {
         });
         await newCategory.save();
         return res.status(201).json({
-            message: "Category created successfully",
+            message: `Category ${name} created successfully`,
             status: 201,
             newCategory
         });
@@ -69,7 +78,14 @@ const updateCategory = async(req, res) => {
     const { id } = req.params;
     const { name, description, price, capacity } = req.body;
 
-    const { path } = req.file;
+    const { path } = req.file ? req.file : {};
+
+    if (!path) {
+        return res.status(400).json({
+            message: 'You must upload an image',
+            status: 400
+        });
+    }
 
     const cloudinaryImg = await cloudinary.uploader.upload(path);
 
