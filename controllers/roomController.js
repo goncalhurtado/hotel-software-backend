@@ -165,9 +165,43 @@ const updateRoom = async(req, res) => {
 }
 
 
+const deleteRoom = async(req, res) => {
+    const { id } = req.params;
+    try {
+
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({
+                message: "Invalid id",
+                status: 400
+            });
+        }
+
+        const room = await Room.findByIdAndDelete(id);
+        if (!room) {
+            return res.status(400).json({
+                message: "Room not found",
+                status: 400
+            });
+        }
+        res.status(200).json({
+            message: "Room deleted successfully",
+            status: 200,
+            room
+        });
+    } catch (error) {
+        return res.status(400).json({
+            message: "Error deleting room",
+            error
+        });
+    }
+}
+
+
+
 module.exports = {
     createRoom,
     getAllRooms,
     getRoomById,
-    updateRoom
+    updateRoom,
+    deleteRoom
 }
