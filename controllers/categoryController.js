@@ -80,14 +80,20 @@ const updateCategory = async(req, res) => {
 
     const { path } = req.file ? req.file : {};
 
-    if (!path) {
-        return res.status(400).json({
-            message: 'You must upload an image',
-            status: 400
-        });
+    // if (!path) {
+    //     return res.status(400).json({
+    //         message: 'You must upload an image',
+    //         status: 400
+    //     });
+    // }
+
+    let cloudinaryImg = ""
+
+    if (path) {
+        cloudinaryImg = await cloudinary.uploader.upload(path);
     }
 
-    const cloudinaryImg = await cloudinary.uploader.upload(path);
+
 
     try {
 
@@ -111,7 +117,7 @@ const updateCategory = async(req, res) => {
             description,
             price,
             capacity,
-            image: cloudinaryImg.secure_url
+            image: cloudinaryImg.secure_url || categoryById.image
         }, { new: true });
         if (!category) {
             return res.status(400).json({

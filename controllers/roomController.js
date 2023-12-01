@@ -4,18 +4,41 @@ const mongoose = require('mongoose');
 
 const createRoom = async(req, res) => {
     const { number, category } = req.body;
-    const categoryById = await Category.findById(category);
+
 
     try {
-        const existingRoom = await Room.findOne({ number });
 
-        if (existingRoom) {
+        const categoryById = await Category.findById(category);
+
+        if (!mongoose.isValidObjectId(category)) {
+            return res.status(400).json({
+                message: "Invalid id",
+                status: 400
+            });
+        }
+
+
+
+        const existingRoom = await Room.findOne({ number });
+        if (existingRoom && String(existingRoom._id) !== categoryById._id) {
+
             return res.status(400).json({
                 message: `Room ${number} already exists`,
                 status: 400,
                 response: existingRoom
             });
         }
+
+
+
+        if (!categoryById) {
+            return res.status(400).json({
+                message: `Category does not exist`,
+                status: 400,
+
+            });
+        }
+
 
         const newRoom = new Room({
             number,
@@ -29,6 +52,7 @@ const createRoom = async(req, res) => {
         });
     } catch (error) {
         res.status(400).json({ message: "Error creating room" });
+        console.log(error);
     }
 }
 
