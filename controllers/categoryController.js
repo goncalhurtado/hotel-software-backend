@@ -1,6 +1,8 @@
 const Category = require('../models/categorySchema');
+const Room = require("../models/roomSchema");
 const cloudinary = require('cloudinary').v2;
 const mongoose = require('mongoose');
+
 
 const createCategory = async(req, res) => {
     const { name, description, price, capacity } = req.body;
@@ -80,14 +82,11 @@ const updateCategory = async(req, res) => {
 
     const { path } = req.file ? req.file : {};
 
-    if (!path) {
-        return res.status(400).json({
-            message: 'You must upload an image',
-            status: 400
-        });
-    }
+    let cloudinaryImg = ""
 
-    const cloudinaryImg = await cloudinary.uploader.upload(path);
+    if (path) {
+        cloudinaryImg = await cloudinary.uploader.upload(path);
+    }
 
     try {
 
@@ -111,7 +110,7 @@ const updateCategory = async(req, res) => {
             description,
             price,
             capacity,
-            image: cloudinaryImg.secure_url
+            image: cloudinaryImg.secure_url || categoryById.image
         }, { new: true });
         if (!category) {
             return res.status(400).json({
@@ -174,6 +173,16 @@ const deleteCategory = async(req, res) => {
                 status: 400
             });
         }
+
+        const roomsToCategory = await Room.find({ category: id }).populate('category');
+
+        if (roomsToCategory.length > 0) {
+            return res.status(400).json({
+                message: "Category is used by a room. Please delete the rooms first",
+                status: 400
+            });
+        }
+
 
         const category = await Category.findByIdAndDelete(id);
         if (!category) {

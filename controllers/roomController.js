@@ -4,18 +4,41 @@ const mongoose = require('mongoose');
 
 const createRoom = async(req, res) => {
     const { number, category } = req.body;
-    const categoryById = await Category.findById(category);
+
 
     try {
-        const existingRoom = await Room.findOne({ number });
 
-        if (existingRoom) {
+        const categoryById = await Category.findById(category);
+
+        if (!mongoose.isValidObjectId(category)) {
+            return res.status(400).json({
+                message: "Invalid id",
+                status: 400
+            });
+        }
+
+
+
+        const existingRoom = await Room.findOne({ number });
+        if (existingRoom && String(existingRoom._id) !== categoryById._id) {
+
             return res.status(400).json({
                 message: `Room ${number} already exists`,
                 status: 400,
                 response: existingRoom
             });
         }
+
+
+
+        if (!categoryById) {
+            return res.status(400).json({
+                message: `Category does not exist`,
+                status: 400,
+
+            });
+        }
+
 
         const newRoom = new Room({
             number,
@@ -29,6 +52,7 @@ const createRoom = async(req, res) => {
         });
     } catch (error) {
         res.status(400).json({ message: "Error creating room" });
+        console.log(error);
     }
 }
 
@@ -90,9 +114,9 @@ const getRoomById = async(req, res) => {
 }
 
 const updateRoom = async(req, res) => {
+
     const { id } = req.params;
     const { number, category } = req.body;
-    const categoryById = await Category.findById(category);
 
     try {
         if (!mongoose.isValidObjectId(id)) {
@@ -102,10 +126,9 @@ const updateRoom = async(req, res) => {
             });
         }
 
-
         const existingRoom = await Room.findOne({ number });
+        if (existingRoom && String(existingRoom._id) !== id) {
 
-        if (existingRoom) {
             return res.status(400).json({
                 message: `Room ${number} already exists`,
                 status: 400,
@@ -113,10 +136,13 @@ const updateRoom = async(req, res) => {
             });
         }
 
+        const categoryById = await Category.findById(category);
+
         if (!categoryById) {
             return res.status(400).json({
                 message: `Category ${category} does not exist`,
-                status: 400
+                status: 400,
+
             });
         }
 
@@ -139,9 +165,43 @@ const updateRoom = async(req, res) => {
 }
 
 
+const deleteRoom = async(req, res) => {
+    const { id } = req.params;
+    try {
+
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({
+                message: "Invalid id",
+                status: 400
+            });
+        }
+
+        const room = await Room.findByIdAndDelete(id);
+        if (!room) {
+            return res.status(400).json({
+                message: "Room not found",
+                status: 400
+            });
+        }
+        res.status(200).json({
+            message: "Room deleted successfully",
+            status: 200,
+            room
+        });
+    } catch (error) {
+        return res.status(400).json({
+            message: "Error deleting room",
+            error
+        });
+    }
+}
+
+
+
 module.exports = {
     createRoom,
     getAllRooms,
     getRoomById,
-    updateRoom
+    updateRoom,
+    deleteRoom
 }
