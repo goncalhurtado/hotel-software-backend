@@ -22,7 +22,7 @@ router.delete("/booking/:id", deleteBooking);
 router.get("/booking/:id", getBookingById);
 
 //search
-router.get("/search", searchAvailable);
+router.get("/bookings/search", searchAvailable);
 
 //categories
 router.post("/category", upload.single('image'), createCategory);
