@@ -1,6 +1,8 @@
 const Booking = require("../models/bookingSchema");
 const mongoose = require("mongoose");
 const { format } = require("date-fns");
+const random = require('random-string-alphanumeric-generator');
+const Room = require("../models/roomSchema");
 
 const getAllBookings = async(req, res) => {
     const bookings = await Booking.find().populate('room');
@@ -43,7 +45,7 @@ const getAllBookings = async(req, res) => {
 const createBooking = async(req, res) => {
     try {
         const {
-            room,
+            category,
             check_in,
             check_out,
             info: {
@@ -55,15 +57,45 @@ const createBooking = async(req, res) => {
                 passportType,
                 passport,
                 arrivalTime,
-                additionalComments,
                 paymentMethod,
+                additionalComments,
                 paymentStatus,
                 price,
             },
         } = req.body;
 
+        // const capacityInt = parseInt(category.capacity);
         const checkInDate = new Date(check_in);
         const checkOutDate = new Date(check_out);
+
+        const rooms = await Room.find().populate('category');
+        const roomsFilteredPerCategory = rooms.filter(room => room.category._id.toString() === category);
+
+        const bookingsOnUserDate = await Booking.find({
+            $and: [{
+                    check_in: {
+                        $lt: checkOutDate
+                    }
+                },
+                {
+                    check_out: {
+                        $gt: checkInDate
+                    }
+                }
+            ]
+        }).populate('room')
+
+        const bookedRoomIds = bookingsOnUserDate.map(booking => booking.room.id.toString());
+        const availablesRooms = roomsFilteredPerCategory.filter(room => !bookedRoomIds.includes(room._id.toString()));
+
+        if (availablesRooms.length === 0)
+            return res.status(400).json({
+                message: "No rooms available",
+                status: 400,
+            });
+
+
+        const room = availablesRooms[0]._id;
 
         const newBooking = new Booking({
             info: {
@@ -83,6 +115,8 @@ const createBooking = async(req, res) => {
             room,
             check_in: checkInDate,
             check_out: checkOutDate,
+            date: new Date(),
+            bookingId: random.randomAlphanumeric(8, "uppercase"),
         });
 
         const savedBooking = await newBooking.save();
