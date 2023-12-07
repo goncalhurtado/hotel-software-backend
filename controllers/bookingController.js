@@ -1,11 +1,18 @@
 const Booking = require("../models/bookingSchema");
+const Category = require("../models/categorySchema");
 const mongoose = require("mongoose");
 const { format } = require("date-fns");
 const random = require('random-string-alphanumeric-generator');
 const Room = require("../models/roomSchema");
 
 const getAllBookings = async(req, res) => {
-    const bookings = await Booking.find().populate('room');
+    const bookings = await Booking.find().populate({
+        path: 'room',
+        populate: {
+            path: 'category',
+            model: 'Category'
+        }
+    });
 
 
     try {
@@ -18,11 +25,13 @@ const getAllBookings = async(req, res) => {
         const formattedBookings = bookings.map(booking => {
             const formattedCheckIn = format(new Date(booking.check_in), "MM/dd/yyyy");
             const formattedCheckOut = format(new Date(booking.check_out), "MM/dd/yyyy");
+            // const formattedDate = format(new Date(booking.date), "MM/dd/yyyy");
 
             return {
                 ...booking.toObject(),
                 check_in: formattedCheckIn,
                 check_out: formattedCheckOut,
+                // date: formattedDate
             };
         });
 
@@ -63,7 +72,7 @@ const createBooking = async(req, res) => {
                 price,
             },
         } = req.body;
-
+        // console.log(req.body);
         // const capacityInt = parseInt(category.capacity);
         const checkInDate = new Date(check_in);
         const checkOutDate = new Date(check_out);
@@ -118,6 +127,7 @@ const createBooking = async(req, res) => {
             date: new Date(),
             bookingId: random.randomAlphanumeric(8, "uppercase"),
         });
+        console.log(newBooking);
 
         const savedBooking = await newBooking.save();
 
