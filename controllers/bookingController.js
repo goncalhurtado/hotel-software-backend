@@ -1,5 +1,4 @@
 const Booking = require("../models/bookingSchema");
-const Category = require("../models/categorySchema");
 const mongoose = require("mongoose");
 const { format } = require("date-fns");
 const random = require('random-string-alphanumeric-generator');
@@ -13,7 +12,6 @@ const getAllBookings = async(req, res) => {
             model: 'Category'
         }
     });
-
 
     try {
 
@@ -184,51 +182,33 @@ const updateBooking = async(req, res) => {
     try {
         const { id } = req.params;
         const {
-            room,
-            check_in,
-            check_out,
-            info: {
-                firstName,
-                lastName,
-                phone,
-                email,
-                country,
-                passportType,
-                passport,
-                arrivalTime,
-                additionalComments,
-                paymentMethod,
-                paymentStatus,
-                price,
-            },
+            firstName,
+            lastName,
+            email,
+            country,
+            phone,
+            passport,
+            arrivalTime,
+            passportType
         } = req.body;
 
         if (!mongoose.isValidObjectId(id)) return res.status(400).send({
             message: "Invalid id",
             status: 400,
         });
-
-        const checkInDate = new Date(check_in);
-        const checkOutDate = new Date(check_out);
+        // Crear un objeto con los campos a actualizar
+        let updateFields = {};
+        if (firstName) updateFields['info.firstName'] = firstName;
+        if (lastName) updateFields['info.lastName'] = lastName;
+        if (email) updateFields['info.email'] = email;
+        if (country) updateFields['info.country'] = country;
+        if (phone) updateFields['info.phone'] = phone;
+        if (passport) updateFields['info.passport'] = passport;
+        if (arrivalTime) updateFields['info.arrivalTime'] = arrivalTime;
+        if (passportType) updateFields['info.passportType'] = passportType;
 
         const updateBookingData = await Booking.findByIdAndUpdate(id, {
-            info: {
-                firstName,
-                lastName,
-                phone,
-                email,
-                country,
-                passportType,
-                passport,
-                arrivalTime,
-                additionalComments,
-                paymentMethod,
-                paymentStatus,
-                price,
-            },
-            room,
-            check_in: checkInDate,
-            check_out: checkOutDate,
+            $set: updateFields
         }, { new: true });
 
         if (!updateBookingData || updateBookingData === null) return res.status(400).send({
