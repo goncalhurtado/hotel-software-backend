@@ -13,7 +13,7 @@ const config = {
 
 const jwtStrategy = new JWTStrategy(config, async(payload, done) => {
     try {
-        const admin = await Admin.findById(payload._id);
+        const admin = await Admin.findById(payload.sub);
         if (!admin) return done(null, false);
         return done(null, admin);
     } catch (error) {

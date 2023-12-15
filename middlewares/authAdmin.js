@@ -1,7 +1,6 @@
 const passport = require("passport");
 
 const authenticateAdmin = (req, res, next) => {
-
     passport.authenticate("jwt", (error, user, info) => {
 
         if (error) {
