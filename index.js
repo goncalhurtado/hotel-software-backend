@@ -18,7 +18,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(morgan('dev'));
 
 //passport
-
 passport.use("jwt", jwtStrategy);
 
 // cloudinary config

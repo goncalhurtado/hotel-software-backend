@@ -1,5 +1,5 @@
 const passportJWT = require("passport-jwt");
-const User = require("../models/userSchema");
+const Admin = require("../models/adminSchema");
 const dotenv = require("dotenv");
 
 const JWTStrategy = passportJWT.Strategy;
@@ -13,9 +13,9 @@ const config = {
 
 const jwtStrategy = new JWTStrategy(config, async(payload, done) => {
     try {
-        const user = await User.findById(payload._id);
-        if (!user) return done(null, false);
-        return done(null, user);
+        const admin = await Admin.findById(payload._id);
+        if (!admin) return done(null, false);
+        return done(null, admin);
     } catch (error) {
         return done(error, false);
     }
