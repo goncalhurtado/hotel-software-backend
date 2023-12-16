@@ -3,6 +3,7 @@ const { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingB
 const { createCategory, getAllCategories, updateCategory, getCategoryById, deleteCategory } = require('../controllers/categoryController');
 const { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom } = require('../controllers/roomController');
 const { searchAvailable } = require('../controllers/searchController');
+const { postContact, getAllContacts } = require('../controllers/contactController');
 upload = require('../middlewares/multer');
 const authenticateAdmin = require('../middlewares/authAdmin');
 const router = require('express').Router();
@@ -37,6 +38,11 @@ router.put("/room/:id", authenticateAdmin, updateRoom);
 router.get("/room/:id", getRoomById);
 router.get("/rooms", getAllRooms);
 router.delete("/room/:id", authenticateAdmin, deleteRoom);
+
+
+//contact
+router.get("/contacts", authenticateAdmin, getAllContacts);
+router.post("/contact", postContact);
 
 
 
