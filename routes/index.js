@@ -3,7 +3,7 @@ const { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingB
 const { createCategory, getAllCategories, updateCategory, getCategoryById, deleteCategory } = require('../controllers/categoryController');
 const { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom } = require('../controllers/roomController');
 const { searchAvailable } = require('../controllers/searchController');
-const { postContact, getAllContacts } = require('../controllers/contactController');
+const { postContact, getAllContacts, getPendingContacts, getAnsweredContacts, setAswered, setPending, deleteContact } = require('../controllers/contactController');
 upload = require('../middlewares/multer');
 const authenticateAdmin = require('../middlewares/authAdmin');
 const router = require('express').Router();
@@ -41,7 +41,12 @@ router.delete("/room/:id", authenticateAdmin, deleteRoom);
 
 
 //contact
-router.get("/contacts", authenticateAdmin, getAllContacts);
+router.get("/admin/contacts/all", authenticateAdmin, getAllContacts);
+router.get("/admin/contacts/pending", authenticateAdmin, getPendingContacts);
+router.get("/admin/contacts/answered", authenticateAdmin, getAnsweredContacts);
+router.put("/admin/contacts/answered/:id", authenticateAdmin, setAswered);
+router.put("/admin/contacts/pending/:id", authenticateAdmin, setPending);
+router.delete("/admin/contacts/:id", authenticateAdmin, deleteContact);
 router.post("/contact", postContact);
 
 
