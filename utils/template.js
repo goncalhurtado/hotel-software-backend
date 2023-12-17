@@ -32,6 +32,31 @@ const templateEmailBooking = (booking, datesToEmail) => {
     )
 }
 
+const emailTemplateResponseContact = (emailData) => {
+    return (
+        `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>Document</title>
+        </head>
+
+        <body style="font-family: Arial, sans-serif; color: #333; margin: 0; padding: 0;">
+            <div style="width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px;">
+                <div style="text-align: center; padding: 20px 0; background-color: #3f51b5; color: #FFFFFF;">
+                <h1 style="margin: 0;">Hotel</h1>
+                </div>
+                <div style="padding: 20px;">
+                    <p style="font-size: 16px;">${emailData.response}</p>
+                </div>
+            </div>
+        </body>
+        </html>
+`
+    )
+}
+
 module.exports = {
-    templateEmailBooking
+    templateEmailBooking,
+    emailTemplateResponseContact
 }
