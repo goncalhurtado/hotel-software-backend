@@ -49,6 +49,7 @@ router.put("/admin/contacts/pending/:id", authenticateAdmin, setPending);
 router.delete("/admin/contacts/:id", authenticateAdmin, deleteContact);
 router.post("/contact", postContact);
 
-
+//testEmail
+// router.post("/testEmail", testEmail);
 
 module.exports = router;

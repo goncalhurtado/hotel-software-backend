@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const { format } = require("date-fns");
 const random = require('random-string-alphanumeric-generator');
 const Room = require("../models/roomSchema");
+const { sendEmailBooking } = require('../utils/emailHandler.js');
 
 const getAllBookings = async(req, res) => {
     const bookings = await Booking.find().populate({
@@ -72,10 +73,17 @@ const createBooking = async(req, res) => {
         } = req.body;
         // console.log(req.body);
         // const capacityInt = parseInt(category.capacity);
+
+        const datesToEmail = { check_in: check_in, check_out: check_out };
+
+
         const checkInDate = new Date(check_in);
         const checkOutDate = new Date(check_out);
 
         const rooms = await Room.find().populate('category');
+
+
+
         const roomsFilteredPerCategory = rooms.filter(room => room.category._id.toString() === category);
 
         const bookingsOnUserDate = await Booking.find({
@@ -125,9 +133,11 @@ const createBooking = async(req, res) => {
             date: new Date(),
             bookingId: random.randomAlphanumeric(8, "uppercase"),
         });
-        console.log(newBooking);
 
         const savedBooking = await newBooking.save();
+
+        sendEmailBooking(newBooking, datesToEmail)
+
 
         res.status(200).send({
             message: "Booking created",
@@ -255,5 +265,37 @@ const deleteBooking = async(req, res) => {
     }
 }
 
+
+
+// const testEmail = async(req, res) => {
+
+//     const {
+//         check_in,
+//         check_out,
+//         firstName,
+//         email,
+//         price
+//     } = req.body;
+
+//     const booking = {
+//         bookingId: random.randomAlphanumeric(8, "uppercase"),
+//         info: {
+//             firstName: firstName,
+//             email: email,
+//             price: price
+//         }
+//     }
+
+//     const datesToEmail = { check_in: check_in, check_out: check_out };
+
+//     sendEmailBooking(booking, datesToEmail)
+
+//     return res.status(200).send({
+//         message: "Email sent",
+//         status: 200,
+
+//     });
+
+// }
 
 module.exports = { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingById }
