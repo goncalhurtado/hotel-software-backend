@@ -1,6 +1,6 @@
 const Contact = require('../models/contactSchema');
 const { format } = require("date-fns");
-// const mongoose = require('mongoose')
+const { sendEmailResponseContact } = require('../utils/emailHandler.js');
 
 
 const getAllContacts = async(req, res) => {
@@ -71,6 +71,30 @@ const setPending = async(req, res) => {
     } catch (error) {
         res.status(400).send({
             message: "Error updating contact",
+            status: 400,
+            error
+        })
+    }
+}
+
+const getContactReports = async(req, res) => {
+    try {
+        const contacts = await Contact.find({ status: 'pending' })
+
+        const totalContacts = contacts.length
+        const totalPendingContacts = contacts.filter(contact => contact.status === 'pending').length
+        const totalAnsweredContacts = contacts.filter(contact => contact.status === 'answered').length
+        console.log(totalContacts, totalPendingContacts, totalAnsweredContacts);
+        res.status(200).send({
+            message: "Contact reports retrieved successfully",
+            status: 200,
+            totalContacts,
+            totalPendingContacts,
+            totalAnsweredContacts
+        })
+    } catch (error) {
+        res.status(400).send({
+            message: "Error retrieving contact reports",
             status: 400,
             error
         })
@@ -159,6 +183,41 @@ const deleteContact = async(req, res) => {
     }
 }
 
+const responseContact = async(req, res) => {
+    try {
+        const { setAnswered, id } = req.body;
+        console.log(setAnswered, id);
+        if (setAnswered) {
+            try {
+                const contact = await Contact.findByIdAndUpdate(id, { status: 'answered' })
+            } catch (error) {
+                console.log(error);
+                return res.status(400).send({
+                    message: "Error updating contact",
+                    status: 400,
+                    error
+                });
+            }
+        }
+
+        const emailData = req.body
+        sendEmailResponseContact(emailData)
+
+
+        return res.status(200).send({
+            message: "Response sent successfully",
+            status: 200,
+
+        })
+    } catch (error) {
+        res.status(400).send({
+            message: "Error retrieving contact",
+            status: 400,
+            error
+        })
+    }
+}
+
 
 module.exports = {
     getAllContacts,
@@ -167,5 +226,7 @@ module.exports = {
     getAnsweredContacts,
     setAswered,
     setPending,
-    deleteContact
+    deleteContact,
+    getContactReports,
+    responseContact
 }
