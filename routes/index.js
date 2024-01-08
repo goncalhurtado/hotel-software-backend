@@ -1,7 +1,7 @@
 const { getAllAdmins, registerAdmin, deleteAdmin, getAdminById, loginAdmin } = require('../controllers/adminController');
 const { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingById } = require('../controllers/bookingController');
 const { createCategory, getAllCategories, updateCategory, getCategoryById, deleteCategory } = require('../controllers/categoryController');
-const { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom } = require('../controllers/roomController');
+const { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom, getRoomsByCategoryId } = require('../controllers/roomController');
 const { searchAvailable } = require('../controllers/searchController');
 const { postContact, getAllContacts, getPendingContacts, getAnsweredContacts, setAswered, setPending, deleteContact, getContactReports, responseContact } = require('../controllers/contactController');
 upload = require('../middlewares/multer');
@@ -37,6 +37,7 @@ router.post("/room", authenticateAdmin, createRoom);
 router.put("/room/:id", authenticateAdmin, updateRoom);
 router.get("/room/:id", getRoomById);
 router.get("/rooms", getAllRooms);
+router.get("/rooms/:categoryId", authenticateAdmin, getRoomsByCategoryId)
 router.delete("/room/:id", authenticateAdmin, deleteRoom);
 
 
