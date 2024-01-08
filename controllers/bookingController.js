@@ -50,6 +50,104 @@ const getAllBookings = async(req, res) => {
     }
 }
 
+const getPastBookings = async(req, res) => {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const bookings = await Booking.find({ check_out: { $lt: today } }).populate({
+            path: 'room',
+            populate: {
+                path: 'category',
+                model: 'Category'
+            }
+        });
+
+        if (!bookings || bookings.length === 0) return res.status(400).send({
+            message: "No past bookings found",
+            status: 400,
+        });
+
+        const formattedBookings = bookings.map(booking => {
+            const formattedCheckIn = format(new Date(booking.check_in), "MM/dd/yyyy");
+            const formattedCheckOut = format(new Date(booking.check_out), "MM/dd/yyyy");
+            // const formattedDate = format(new Date(booking.date), "MM/dd/yyyy");
+
+            return {
+                ...booking.toObject(),
+                check_in: formattedCheckIn,
+                check_out: formattedCheckOut,
+                // date: formattedDate
+            };
+        });
+
+        return res.status(200).send({
+            message: "Past bookings retrieved successfully",
+            status: 200,
+            formattedBookings,
+        });
+
+    } catch (error) {
+        console.log(error)
+        res.status(400).send({
+            message: "Error retrieving bookings",
+            status: 400,
+            error,
+        })
+    }
+}
+
+const getUpcomingBookings = async(req, res) => {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // set time to 00:00:00
+
+        const bookings = await Booking.find({ check_out: { $gt: today } }).populate({
+            path: 'room',
+            populate: {
+                path: 'category',
+                model: 'Category'
+            }
+        });
+
+        if (!bookings || bookings.length === 0) return res.status(400).send({
+            message: "No upcoming bookings found",
+            status: 400,
+        });
+
+        const formattedBookings = bookings.map(booking => {
+            const formattedCheckIn = format(new Date(booking.check_in), "MM/dd/yyyy");
+            const formattedCheckOut = format(new Date(booking.check_out), "MM/dd/yyyy");
+            // const formattedDate = format(new Date(booking.date), "MM/dd/yyyy");
+
+            return {
+                ...booking.toObject(),
+                check_in: formattedCheckIn,
+                check_out: formattedCheckOut,
+                // date: formattedDate
+            };
+        });
+
+
+        return res.status(200).send({
+            message: "Upcoming bookings retrieved successfully",
+            status: 200,
+            formattedBookings,
+        });
+
+    } catch (error) {
+        console.log(error)
+        res.status(400).send({
+            message: "Error retrieving bookings",
+            status: 400,
+            error,
+        })
+    }
+}
+
+
+
+
 const createBooking = async(req, res) => {
     try {
         const {
@@ -298,4 +396,4 @@ const deleteBooking = async(req, res) => {
 
 // }
 
-module.exports = { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingById }
+module.exports = { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingById, getPastBookings, getUpcomingBookings }
