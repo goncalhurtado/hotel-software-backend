@@ -66,15 +66,16 @@ const loginAdmin = async(req, res) => {
     const secret = process.env.JWT_SECRET;
 
     try {
+
         if (!user)
-            return res.status(404).send({
+            return res.status(400).send({
                 message: "User not found",
-                status: 404,
+                status: 400,
             });
         if (!comparePassword(password, user.password))
             return res.status(404).send({
                 message: "Invalid password",
-                status: 404,
+                status: 400,
             })
 
         const payload = {
@@ -89,9 +90,9 @@ const loginAdmin = async(req, res) => {
             token,
         });
     } catch (error) {
-        res.status(400).send({
+        res.status(404).send({
             message: "Error logging",
-            status: 400,
+            status: 404,
             error,
         });
 

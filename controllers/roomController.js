@@ -80,6 +80,30 @@ const getAllRooms = async(req, res) => {
     }
 }
 
+const getRoomsByCategoryId = async(req, res) => {
+    const { categoryId } = req.params;
+    try {
+
+        if (!mongoose.isValidObjectId(categoryId)) {
+            return res.status(400).json({
+                message: "Invalid id",
+                status: 400
+            });
+        }
+
+        const rooms = await Room.find({ category: categoryId });
+        return res.status(200).json({
+            message: "Rooms retrieved successfully",
+            status: 200,
+            rooms
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Server Error', error });
+    }
+}
+
+
+
 const getRoomById = async(req, res) => {
     const { id } = req.params;
     try {
@@ -203,5 +227,6 @@ module.exports = {
     getAllRooms,
     getRoomById,
     updateRoom,
-    deleteRoom
+    deleteRoom,
+    getRoomsByCategoryId
 }
