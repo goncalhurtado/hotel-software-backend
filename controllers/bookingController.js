@@ -24,13 +24,12 @@ const getAllBookings = async(req, res) => {
         const formattedBookings = bookings.map(booking => {
             const formattedCheckIn = format(new Date(booking.check_in), "MM/dd/yyyy");
             const formattedCheckOut = format(new Date(booking.check_out), "MM/dd/yyyy");
-            // const formattedDate = format(new Date(booking.date), "MM/dd/yyyy");
 
             return {
                 ...booking.toObject(),
                 check_in: formattedCheckIn,
                 check_out: formattedCheckOut,
-                // date: formattedDate
+
             };
         });
 
@@ -47,6 +46,53 @@ const getAllBookings = async(req, res) => {
             status: 400,
             error,
         });
+    }
+}
+
+const getCurrentBookings = async(req, res) => {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const bookings = await Booking.find({ check_in: { $lte: today }, check_out: { $gte: today } }).populate({
+            path: 'room',
+            populate: {
+                path: 'category',
+                model: 'Category'
+            }
+        });
+        const emptyResponse = []
+        if (!bookings || bookings.length === 0) return res.status(204).send({
+            message: "No currents bookings found",
+            status: 204,
+            emptyResponse
+        });
+
+        const formattedBookings = bookings.map(booking => {
+            const formattedCheckIn = format(new Date(booking.check_in), "MM/dd/yyyy");
+            const formattedCheckOut = format(new Date(booking.check_out), "MM/dd/yyyy");
+
+            return {
+                ...booking.toObject(),
+                check_in: formattedCheckIn,
+                check_out: formattedCheckOut,
+            };
+        });
+
+        return res.status(200).send({
+            message: "Currents bookings retrieved successfully",
+            status: 200,
+            formattedBookings,
+        });
+
+    } catch (error) {
+        console.log(error)
+
+        res.status(400).send({
+            message: "Error retrieving bookings",
+            status: 400,
+            error,
+        })
     }
 }
 
@@ -71,13 +117,11 @@ const getPastBookings = async(req, res) => {
         const formattedBookings = bookings.map(booking => {
             const formattedCheckIn = format(new Date(booking.check_in), "MM/dd/yyyy");
             const formattedCheckOut = format(new Date(booking.check_out), "MM/dd/yyyy");
-            // const formattedDate = format(new Date(booking.date), "MM/dd/yyyy");
 
             return {
                 ...booking.toObject(),
                 check_in: formattedCheckIn,
                 check_out: formattedCheckOut,
-                // date: formattedDate
             };
         });
 
@@ -100,7 +144,7 @@ const getPastBookings = async(req, res) => {
 const getUpcomingBookings = async(req, res) => {
     try {
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // set time to 00:00:00
+        today.setHours(0, 0, 0, 0);
 
         const bookings = await Booking.find({ check_out: { $gt: today } }).populate({
             path: 'room',
@@ -118,13 +162,11 @@ const getUpcomingBookings = async(req, res) => {
         const formattedBookings = bookings.map(booking => {
             const formattedCheckIn = format(new Date(booking.check_in), "MM/dd/yyyy");
             const formattedCheckOut = format(new Date(booking.check_out), "MM/dd/yyyy");
-            // const formattedDate = format(new Date(booking.date), "MM/dd/yyyy");
 
             return {
                 ...booking.toObject(),
                 check_in: formattedCheckIn,
                 check_out: formattedCheckOut,
-                // date: formattedDate
             };
         });
 
@@ -169,8 +211,6 @@ const createBooking = async(req, res) => {
                 price,
             },
         } = req.body;
-        // console.log(req.body);
-        // const capacityInt = parseInt(category.capacity);
 
         const datesToEmail = { check_in: check_in, check_out: check_out };
 
@@ -304,7 +344,7 @@ const updateBooking = async(req, res) => {
             message: "Invalid id",
             status: 400,
         });
-        // Crear un objeto con los campos a actualizar
+
         let updateFields = {};
         if (firstName) updateFields['info.firstName'] = firstName;
         if (lastName) updateFields['info.lastName'] = lastName;
@@ -364,36 +404,4 @@ const deleteBooking = async(req, res) => {
 }
 
 
-
-// const testEmail = async(req, res) => {
-
-//     const {
-//         check_in,
-//         check_out,
-//         firstName,
-//         email,
-//         price
-//     } = req.body;
-
-//     const booking = {
-//         bookingId: random.randomAlphanumeric(8, "uppercase"),
-//         info: {
-//             firstName: firstName,
-//             email: email,
-//             price: price
-//         }
-//     }
-
-//     const datesToEmail = { check_in: check_in, check_out: check_out };
-
-//     sendEmailBooking(booking, datesToEmail)
-
-//     return res.status(200).send({
-//         message: "Email sent",
-//         status: 200,
-
-//     });
-
-// }
-
-module.exports = { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingById, getPastBookings, getUpcomingBookings }
+module.exports = { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingById, getPastBookings, getUpcomingBookings, getCurrentBookings }

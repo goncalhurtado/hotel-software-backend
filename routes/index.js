@@ -1,5 +1,5 @@
 const { getAllAdmins, registerAdmin, deleteAdmin, getAdminById, loginAdmin } = require('../controllers/adminController');
-const { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingById, getUpcomingBookings, getPastBookings } = require('../controllers/bookingController');
+const { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingById, getUpcomingBookings, getPastBookings, getCurrentBookings } = require('../controllers/bookingController');
 const { createCategory, getAllCategories, updateCategory, getCategoryById, deleteCategory } = require('../controllers/categoryController');
 const { createRoom, getAllRooms, getRoomById, updateRoom, deleteRoom, getRoomsByCategoryId } = require('../controllers/roomController');
 const { searchAvailable } = require('../controllers/searchController');
@@ -19,6 +19,7 @@ router.post("/login", loginAdmin);
 router.get("/bookings/all", authenticateAdmin, getAllBookings);
 router.get("/bookings/upcoming", authenticateAdmin, getUpcomingBookings);
 router.get("/bookings/past", authenticateAdmin, getPastBookings);
+router.get("/bookings/current", authenticateAdmin, getCurrentBookings);
 router.post("/booking", createBooking);
 router.put("/booking/:id", authenticateAdmin, updateBooking);
 router.delete("/booking/:id", authenticateAdmin, deleteBooking);
