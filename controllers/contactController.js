@@ -84,7 +84,7 @@ const getContactReports = async(req, res) => {
         const totalContacts = contacts.length
         const totalPendingContacts = contacts.filter(contact => contact.status === 'pending').length
         const totalAnsweredContacts = contacts.filter(contact => contact.status === 'answered').length
-        console.log(totalContacts, totalPendingContacts, totalAnsweredContacts);
+
         res.status(200).send({
             message: "Contact reports retrieved successfully",
             status: 200,

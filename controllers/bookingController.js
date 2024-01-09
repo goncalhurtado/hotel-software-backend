@@ -186,8 +186,35 @@ const getUpcomingBookings = async(req, res) => {
         })
     }
 }
+const getBookingReports = async(req, res) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    try {
+        const upcomingBookings = await Booking.countDocuments({ check_out: { $gt: today } })
+        const currentBookings = await Booking.countDocuments({ check_in: { $lte: today }, check_out: { $gte: today } })
+
+        // if (!upcomingBookings || upcomingBookings.length === 0) return res.status(400).send({
+        //     message: "No upcoming bookings found",
+        //     status: 400,
+        // });
 
 
+        res.status(200).send({
+            message: "Upcoming bookings retrieved successfully",
+            status: 200,
+            currentBookings,
+            upcomingBookings
+        });
+
+    } catch (error) {
+        console.log(error)
+        res.status(400).send({
+            message: "Error retrieving bookings",
+            status: 400,
+            error,
+        })
+    }
+}
 
 
 const createBooking = async(req, res) => {
@@ -291,40 +318,40 @@ const createBooking = async(req, res) => {
     }
 }
 
-const getBookingById = async(req, res) => {
-    const { id } = req.params;
-    try {
-        if (!mongoose.isValidObjectId(id)) {
-            return res.status(400).json({
-                message: "Invalid id",
-                status: 400
-            });
-        }
-        let booking = await Booking.findById(id).populate('room');
+// const getBookingById = async(req, res) => {
+//     const { id } = req.params;
+//     try {
+//         if (!mongoose.isValidObjectId(id)) {
+//             return res.status(400).json({
+//                 message: "Invalid id aqui",
+//                 status: 400
+//             });
+//         }
+//         let booking = await Booking.findById(id).populate('room');
 
-        booking.check_in = format(new Date(booking.check_in), "MM/dd/yyyy");
-        booking.check_out = format(new Date(booking.check_out), "MM/dd/yyyy");
+//         booking.check_in = format(new Date(booking.check_in), "MM/dd/yyyy");
+//         booking.check_out = format(new Date(booking.check_out), "MM/dd/yyyy");
 
-        if (!booking) {
-            return res.status(400).json({
-                message: "Booking not found",
-                status: 400
-            });
-        }
-        return res.status(200).json({
-            message: "Booking retrieved successfully",
-            status: 200,
-            booking
-        });
+//         if (!booking) {
+//             return res.status(400).json({
+//                 message: "Booking not found",
+//                 status: 400
+//             });
+//         }
+//         return res.status(200).json({
+//             message: "Booking retrieved successfully",
+//             status: 200,
+//             booking
+//         });
 
-    } catch (error) {
-        res.status(400).json({
-            message: "Error retrieving booking",
-            error
-        });
+//     } catch (error) {
+//         res.status(400).json({
+//             message: "Error retrieving booking",
+//             error
+//         });
 
-    }
-}
+//     }
+// }
 
 const updateBooking = async(req, res) => {
     try {
@@ -404,4 +431,4 @@ const deleteBooking = async(req, res) => {
 }
 
 
-module.exports = { getAllBookings, createBooking, updateBooking, deleteBooking, getBookingById, getPastBookings, getUpcomingBookings, getCurrentBookings }
+module.exports = { getAllBookings, createBooking, updateBooking, deleteBooking, getPastBookings, getUpcomingBookings, getCurrentBookings, getBookingReports }
