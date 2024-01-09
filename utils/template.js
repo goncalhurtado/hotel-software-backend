@@ -22,7 +22,7 @@ const templateEmailBooking = (booking, datesToEmail) => {
                     <p style="font-size: 16px;"><strong>Total Price:</strong> ${booking.info.price}</p>
                     <p style="font-size: 16px;">We look forward to welcoming you to our hotel. If you have any questions or need to make changes to your reservation, please do not hesitate to contact us.</p>
                     <p style="font-size: 16px;">Best Regards,</p>
-                    <p style="font-size: 16px;"><strong><a href="">Hotel Goncal</a</strong></p>
+                    <p style="font-size: 16px;"><strong><a href="https://hotel-goncal.netlify.app/">Hotel Goncal</a</strong></p>
                 </div>
                 <div style="background-color: #f2f2f2; padding: 20px; text-align: center;">
             <p style="margin: 0; font-size: 14px;">Develop by <a href="https://goncalhurtado.netlify.app/">Goncal Hurtado</a>
